@@ -1,24 +1,4 @@
-#[macro_use]
-extern crate lazy_static;
-
 use std::collections::HashMap;
-
-lazy_static! {
-static ref WORD_TO_NUMBER: HashMap<&'static str, u32> = {
-        let mut m = HashMap::new();
-        m.insert("one", 1);
-        m.insert("two", 2);
-        m.insert("three", 3);
-        m.insert("four", 4);
-        m.insert("five", 5);
-        m.insert("six", 6);
-        m.insert("seven", 7);
-        m.insert("eight", 8);
-        m.insert("nine", 9);
-        m.insert("zero", 0);
-        m
-    };
-}
 
 fn main() {
     let input = include_str!("./day-01-input.txt");
@@ -27,45 +7,70 @@ fn main() {
 }
 
 
-fn word_to_number_conversion(word: &str) -> &str {
-    let mut new_word = "";
-    for char in word.chars() {
-        println!("{}", char);
-        // new_word = format!("{}{}", new_word, char).as_str();
-        // match new_word.contains(WORD_TO_NUMBER.iter())
+fn word_to_number_conversion(input_word: String) -> String {
+    let mut m = HashMap::new();
+    m.insert("one", "1");
+    m.insert("two", "2");
+    m.insert("three", "3");
+    m.insert("four", "4");
+    m.insert("five", "5");
+    m.insert("six", "6");
+    m.insert("seven", "7");
+    m.insert("eight", "8");
+    m.insert("nine", "9");
+    let mut new_word: String = "".to_owned();
+    for char in input_word.chars() {
+        new_word.push_str(&*char.to_string());
+        for (word, number) in &m {
+            new_word = new_word.replace(word, number);
+        }
     }
     new_word
 }
 
 fn part_2(input: &str) -> u32 {
-    let mut total = 0;
-    for word in input.split('\n') {
-        let mut first_number = 0;
-        let mut last_number = 0;
-        for char in word.chars() {
-            if char.is_numeric() {
-                if first_number == 0 {
-                    first_number = char.to_digit(10).unwrap();
-                    last_number = char.to_digit(10).unwrap();
-                } else {
-                    last_number = char.to_digit(10).unwrap();
-                }
-            }
-        }
-        match last_number {
-            0 => {
-                let number_string = format!("{}{}", first_number, first_number);
-                total += number_string.parse::<u32>().unwrap();
-            }
-            _ => {
-                let number_string = format!("{}{}", first_number, last_number);
-                total += number_string.parse::<u32>().unwrap();
-            }
-        }
-        first_number = 0;
-        last_number = 0
+    let output =
+        input.lines().map(process_words).sum::<u32>();
+    output
+}
+
+fn process_words(line: &str) -> u32 {
+    let mut it = (0..line.len()).filter_map(|index| {
+        let reduced_line = &line[index..];
+        let result = if reduced_line.starts_with("one") {
+            Some(1)
+        } else if reduced_line.starts_with("two") {
+            Some(2)
+        } else if reduced_line.starts_with("three") {
+            Some(3)
+        } else if reduced_line.starts_with("four") {
+            Some(4)
+        } else if reduced_line.starts_with("five") {
+            Some(5)
+        } else if reduced_line.starts_with("six") {
+            Some(6)
+        } else if reduced_line.starts_with("seven") {
+            Some(7)
+        } else if reduced_line.starts_with("eight") {
+            Some(8)
+        } else if reduced_line.starts_with("nine") {
+            Some(9)
+        } else {
+            reduced_line
+                .chars()
+                .next()
+                .unwrap()
+                .to_digit(10)
+        };
+
+        result
+    });
+    let first = it.next().expect("should be a number");
+
+    match it.last() {
+        Some(num) => first * 10 + num,
+        None => first * 10 + first,
     }
-    total
 }
 
 
