@@ -6,29 +6,46 @@ fn main() {
     println!("{}", total);
 }
 
-
-fn word_to_number_conversion(input_word: String) -> String {
+fn word_to_number_conversion(input_word: String) -> u32 {
     let mut m = HashMap::new();
-    m.insert("one", "1");
-    m.insert("two", "2");
-    m.insert("three", "3");
-    m.insert("four", "4");
-    m.insert("five", "5");
-    m.insert("six", "6");
-    m.insert("seven", "7");
-    m.insert("eight", "8");
-    m.insert("nine", "9");
-    let mut new_word: String = "".to_owned();
-    for char in input_word.chars() {
-        new_word.push_str(&*char.to_string());
+    m.insert("one", 1);
+    m.insert("two", 2);
+    m.insert("three", 3);
+    m.insert("four", 4);
+    m.insert("five", 5);
+    m.insert("six", 6);
+    m.insert("seven", 7);
+    m.insert("eight", 8);
+    m.insert("nine", 9);
+    let mut iterate = (0..input_word.len()).filter_map(|index| {
+        let reduced_line = &input_word[index..];
+        // println!("{}", reduced_line);
+        let mut result = reduced_line.chars().next().unwrap().to_digit(10);
         for (word, number) in &m {
-            new_word = new_word.replace(word, number);
+            if reduced_line.starts_with(word){
+                result = Some(*number)
+            }
         }
+        result
+    });
+
+    let first = iterate.next().unwrap();
+    // println!("{}", first);
+    match iterate.last() {
+        Some(num) => first * 10 + num,
+        None => first * 10 + first,
     }
-    new_word
 }
 
 fn part_2(input: &str) -> u32 {
+    let mut total = 0;
+    for word in input.split('\n') {
+        total += word_to_number_conversion(word.to_string());
+    }
+    total
+}
+
+fn part_2_method_2(input: &str) -> u32 {
     let output =
         input.lines().map(process_words).sum::<u32>();
     output
